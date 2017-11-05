@@ -1,0 +1,51 @@
+---
+- become: yes
+  hosts: default
+  tasks:
+  #- include: tasks/base.yml
+
+  # cURL install
+  - name: base. installing curl
+    apt:
+      name: curl
+      update_cache: yes
+
+  # Copy over upload folder
+  - name: base. copy upload folder
+    copy:
+      dest: /ssl
+      src: ssl/
+
+  # install Node
+  - name: base. install node
+    apt:
+      name: node
+      update_cache: yes
+
+  # install NPM
+  - name: base. install npm
+    apt:
+      name: npm
+      update_cache: yes
+
+  # create ca extra directory
+  - name: base. create ca extra folder
+    file:
+      path: /usr/share/ca-certificates/extra
+      state: directory
+
+  # copy CA-certificates
+  - name: base. copy CA-certificates
+    copy:
+      src: upload/cacertTest.pem
+      dest: /usr/share/ca-certificates/extra/cacertTest.pem
+
+  # add CA to certificates config file
+  - name: base. add CA to certificates config file
+    lineinfile:
+      dest: /etc/ca-certificates.conf
+      line: "extra/cacertTest.pem"
+
+  # Reconfigure and update ca-certificates
+  - name: base. reconfigure and update ca-certificates
+    shell: sudo update-ca-certificates
